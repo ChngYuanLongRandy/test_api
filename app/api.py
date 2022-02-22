@@ -2,7 +2,7 @@ import pandas as pd
 from fastapi import FastAPI, HTTPException
 from fastapi.encoders import jsonable_encoder
 from config.settings import API_VERSION, APP_NAME
-from src.model.predict import make_prediction_inputs_api
+from src.model.predict import make_prediction_inputs_api, make_prediction_inputs_api_dict
 from schema import health, predict
 import json
 from loguru import logger
@@ -34,18 +34,44 @@ def health_of_api() -> dict:
     return _health.dict()
 
 
-@app.post('/predict', response_model=predict.PredictionResults, status_code=200)
-async def predict_value(input_data: predict.Multiple_multipleinputs):
-    logger.info("health_of_api function accessed")
+@app.post('/predict')#, response_model=predict.PredictionResults, status_code=200)
+async def predict_value(input_data: predict.multipleinputs):
+    logger.info("predict function accessed")
     logger.info(f"input_data values: {input_data.inputs}")
+
+    logger.info(f"input data with jsonable encoder: {jsonable_encoder(input_data.inputs)}")
 
     input_df = pd.DataFrame(jsonable_encoder(input_data.inputs))
 
-    results = make_prediction_inputs_api(input_data=input_df)
+    logger.info(f"input_df with pd DataFrame: {input_df}")
+    logger.info(f"Cols: {input_df.columns}")
+    logger.info(f"1st row: {input_df.iloc[0,:]}")
 
-    if results['errors'] is not None:
-        raise HTTPException(status_code=400, detail=json.loads(results["errors"]))
+    #results = make_prediction_inputs_api_dict(input_data=input_df)
+    results = make_prediction_inputs_api(input_data=input_df, proba=True)
 
-    logger.info(f"Prediction results: {results.get('predictions')}")
+    logger.info(f"results: {results}")
+
+    if results['Errors'] is not None:
+        raise HTTPException(status_code=400, detail=json.loads(results["Errors"]))
+
+    logger.info(f"Prediction results: {results.get('Prediction')}")
+    logger.info(f"results type : {type(results)}")
+    logger.info(f"results items : {results.items()}")
+
+    result_prediction = results.get('Prediction')
+    result_error = results.get('Errors')
+    result_version = results.get('Version')
+
+    logger.info(f"result_prediction: {type(result_prediction)}")
+    logger.info(f"result_error : {result_error}")
+    logger.info(f"result_version : {result_version}")
 
     return results
+
+@app.post('/predictv2')#, response_model=predict.PredictionResults, status_code=200)
+def predict_valuev2(input_data: predict.multipleinputs):
+
+    input_df = pd.DataFrame(jsonable_encoder(input_data.inputs))
+
+    return input_df
