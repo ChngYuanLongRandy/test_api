@@ -1,9 +1,9 @@
 import pandas as pd
 from fastapi import FastAPI, HTTPException
 from fastapi.encoders import jsonable_encoder
-from config.settings import API_VERSION, APP_NAME
+from app.config.settings import API_VERSION, APP_NAME
 from src.model.predict import make_prediction_inputs_api, make_prediction_inputs_api_dict
-from schema import health, predict
+from app.schema import health, predict
 import json
 from loguru import logger
 
