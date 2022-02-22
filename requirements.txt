@@ -1,6 +1,7 @@
-heart-disease-classification-model==0.0.13
 fastapi>=0.73.0, <0.74.0
 uvicorn>=0.17.4, <0.18.0
 
 # dunno how to use this yet
 # loguru>=0.6.0,<0.7.0
+
+heart-disease-classification-model==0.0.13
